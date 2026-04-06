@@ -23,6 +23,12 @@ POSITIVE_WORDS = [
     "chill",
     "relaxed",
     "amazing",
+    "hopeful",
+    "proud",
+    "wonderful",
+    "joy",
+    "grateful",
+    "thrilled",
 ]
 
 NEGATIVE_WORDS = [
@@ -36,6 +42,12 @@ NEGATIVE_WORDS = [
     "stressed",
     "hate",
     "boring",
+    "exhausted",
+    "brutal",
+    "miserable",
+    "horrible",
+    "dread",
+    "dreadful",
 ]
 
 # ---------------------------------------------------------------------
@@ -50,6 +62,17 @@ SAMPLE_POSTS = [
     "This is fine",
     "So excited for the weekend",
     "I am not happy about this",
+    # New posts: varied styles
+    "I absolutely love getting stuck in traffic",       # sarcasm
+    "kinda sad but lowkey excited for tomorrow",        # mixed
+    "not bad at all actually",                          # negation → positive
+    "I hate how much I love this show",                 # mixed (hate + love)
+    "this is lowkey fire ngl",                          # slang → positive (rule-based may miss it)
+    "feeling exhausted but so proud of what I did",     # mixed
+    "whatever I guess",                                 # neutral/dismissive
+    "that exam was absolutely brutal",                  # negative
+    "I'm sad and happy at the same time",               # mixed
+    "grateful for everything today :)",                 # positive
 ]
 
 # Human labels for each post above.
@@ -65,6 +88,17 @@ TRUE_LABELS = [
     "neutral",   # "This is fine"
     "positive",  # "So excited for the weekend"
     "negative",  # "I am not happy about this"
+    # New labels
+    "negative",  # "I absolutely love getting stuck in traffic" — sarcasm, rule-based will get this wrong
+    "mixed",     # "kinda sad but lowkey excited for tomorrow"
+    "positive",  # "not bad at all actually"
+    "mixed",     # "I hate how much I love this show"
+    "positive",  # "this is lowkey fire ngl" — rule-based will miss slang
+    "mixed",     # "feeling exhausted but so proud of what I did"
+    "neutral",   # "whatever I guess"
+    "negative",  # "that exam was absolutely brutal"
+    "mixed",     # "I'm sad and happy at the same time"
+    "positive",  # "grateful for everything today :)"
 ]
 
 # TODO: Add 5-10 more posts and labels.

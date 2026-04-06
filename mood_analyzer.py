@@ -9,6 +9,7 @@ This class starts with very simple logic:
   - Convert that score into a mood label
 """
 
+import string
 from typing import List, Dict, Tuple, Optional
 
 from dataset import POSITIVE_WORDS, NEGATIVE_WORDS
@@ -53,7 +54,10 @@ class MoodAnalyzer:
           - Normalize repeated characters ("soooo" -> "soo")
         """
         cleaned = text.strip().lower()
-        tokens = cleaned.split()
+        raw_tokens = cleaned.split()
+        # Strip leading/trailing punctuation from each token so "traffic,"
+        # matches "traffic" and "love!" matches "love".
+        tokens = [t.strip(string.punctuation) for t in raw_tokens if t.strip(string.punctuation)]
 
         return tokens
 
@@ -83,7 +87,24 @@ class MoodAnalyzer:
         #
         # Hint: if you implement negation, you may want to look at pairs of tokens,
         # like ("not", "happy") or ("never", "fun").
-        pass
+        tokens = self.preprocess(text)
+        score = 0
+        negation_words = {"not", "never", "no", "don't", "doesn't", "didn't", "cant", "can't", "won't"}
+        negate_next = False
+
+        for token in tokens:
+            if token in negation_words:
+                negate_next = True
+                continue
+
+            if token in self.positive_words:
+                score += -1 if negate_next else 1
+            elif token in self.negative_words:
+                score += 1 if negate_next else -1
+
+            negate_next = False
+
+        return score
 
     # ---------------------------------------------------------------------
     # Label prediction
@@ -110,7 +131,41 @@ class MoodAnalyzer:
         #   2. Return "positive" if the score is above 0.
         #   3. Return "negative" if the score is below 0.
         #   4. Return "neutral" otherwise.
-        pass
+        tokens = self.preprocess(text)
+        negation_words = {"not", "never", "no", "don't", "doesn't", "didn't", "cant", "can't", "won't"}
+        negate_next = False
+        pos_count = 0
+        neg_count = 0
+        score = 0
+
+        for token in tokens:
+            if token in negation_words:
+                negate_next = True
+                continue
+            if token in self.positive_words:
+                if negate_next:
+                    neg_count += 1
+                    score -= 1
+                else:
+                    pos_count += 1
+                    score += 1
+            elif token in self.negative_words:
+                if negate_next:
+                    pos_count += 1
+                    score += 1
+                else:
+                    neg_count += 1
+                    score -= 1
+            negate_next = False
+
+        if pos_count > 0 and neg_count > 0:
+            return "mixed"
+        elif score > 0:
+            return "positive"
+        elif score < 0:
+            return "negative"
+        else:
+            return "neutral"
 
     # ---------------------------------------------------------------------
     # Explanations (optional but recommended)
