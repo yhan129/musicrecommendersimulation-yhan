@@ -1,0 +1,21 @@
+title,artist,genre,mood,energy,tempo_bpm,danceability,acousticness
+Blinding Lights,The Weeknd,pop,excited,0.8,171,0.51,0.02
+good 4 u,Olivia Rodrigo,pop,angry,0.9,166,0.56,0.02
+Stay With Me,Sam Smith,pop,sad,0.3,76,0.32,0.45
+Shape of You,Ed Sheeran,pop,happy,0.7,96,0.82,0.08
+Levitating,Dua Lipa,pop,happy,0.8,103,0.73,0.06
+SAD!,XXXTENTACION,hiphop,sad,0.4,75,0.49,0.26
+HUMBLE.,Kendrick Lamar,hiphop,angry,0.7,150,0.65,0.03
+God's Plan,Drake,hiphop,happy,0.5,77,0.75,0.06
+Smells Like Teen Spirit,Nirvana,rock,angry,0.9,117,0.45,0.01
+Hotel California,Eagles,rock,melancholy,0.5,75,0.40,0.60
+Weightless,Marconi Union,ambient,calm,0.1,65,0.10,0.91
+Gym Hero,Metro Boomin,hiphop,excited,0.95,145,0.78,0.01
+Bohemian Rhapsody,Queen,rock,mixed,0.6,72,0.35,0.40
+As It Was,Harry Styles,indie,melancholy,0.6,174,0.52,0.18
+Anti-Hero,Taylor Swift,pop,sad,0.5,97,0.55,0.11
+Industry Baby,Lil Nas X,hiphop,excited,0.85,149,0.77,0.03
+Electric Feel,MGMT,indie,happy,0.65,107,0.68,0.10
+Sunflower,Post Malone,pop,happy,0.5,96,0.76,0.10
+Sweater Weather,The Neighbourhood,indie,melancholy,0.55,119,0.54,0.35
+Don't Start Now,Dua Lipa,pop,excited,0.78,124,0.73,0.02

@@ -155,3 +155,105 @@ The ML model's 1.00 is misleading — it is evaluated on the same data it traine
 - **Use a real test split** — hold out 20% of data for evaluation so accuracy reflects generalization, not memorization
 - **Try a small pretrained model** — even a lightweight transformer fine-tuned on sentiment data would handle sarcasm and context far better than bag-of-words approaches
 - **Multi-word negation scope** — current negation only covers the immediately next token; `"I never feel truly happy here"` only negates `"feel"`, missing `"happy"`
+
+---
+
+---
+
+# Model Card: VibeFinder 1.0 (Music Recommender Simulation)
+
+---
+
+## 1. Model Name
+
+**VibeFinder 1.0**
+
+---
+
+## 2. Goal / Task
+
+VibeFinder takes a user's taste profile (preferred genre, mood, energy level, danceability, and acousticness) and ranks a catalog of songs from most to least relevant. The goal is to surface the top 5 songs that best match what a listener is in the mood for right now.
+
+---
+
+## 3. Data Used
+
+- **Source**: `data/songs.csv` — a hand-curated catalog of 20 songs
+- **Features per song**: `title`, `artist`, `genre`, `mood`, `energy` (0.0–1.0), `tempo_bpm`, `danceability` (0.0–1.0), `acousticness` (0.0–1.0)
+- **Genre distribution**: pop (8), hiphop (5), rock (4), indie (3), ambient (1)
+- **Mood distribution**: happy (5), excited (5), sad (3), melancholy (3), angry (3), calm (1), mixed (1)
+- **Limits**: 20 songs is extremely small. The catalog is English-language and skewed toward 2015–2023 Western pop and hip-hop. Classical, jazz, country, Latin, and K-pop are entirely absent.
+
+---
+
+## 4. Algorithm Summary
+
+For every song in the catalog, VibeFinder computes a score using five weighted rules:
+
+1. **Genre match** (+2.0 points) — Does the song's genre match what the user said they like?
+2. **Mood match** (+1.0 point) — Does the song's mood label match the user's preferred mood?
+3. **Energy closeness** (up to +1.5 points) — Songs closer to the user's target energy score higher. Calculated as 1.5 × (1 − |song_energy − target_energy|).
+4. **Danceability closeness** (up to +1.0 point) — Same proximity formula applied to danceability.
+5. **Acousticness closeness** (up to +0.5 points) — Same proximity formula, smaller weight.
+
+Maximum possible score: **6.0**. Songs are then sorted from highest to lowest score; the top 5 are returned with a plain-language explanation of each point contribution.
+
+---
+
+## 5. Observed Behavior / Biases
+
+- **Genre dominance creates filter bubbles.** The +2.0 genre bonus is larger than the maximum energy bonus (1.5). This means a song in the correct genre with mediocre attributes will almost always beat a cross-genre song that perfectly matches energy and danceability. Users whose favorite genre is rare in the catalog (e.g., "ambient") see their recommendations fall off a cliff after the first match.
+- **Dataset genre imbalance amplifies the bias.** 40% of the catalog is pop. A pop fan gets 8 genre-matched songs to rank; an ambient fan gets 1. The system works well for the majority genre and poorly for minority genres.
+- **Conflicting preferences are resolved by genre, not mood.** The "Sad Hype" adversarial profile (hip-hop genre, sad mood, high energy) wanted all three at once. The system gave it SAD! at #1 because genre+mood matched, even though that song's energy (0.4) was far from the target (0.9). Genre won the tiebreak.
+- **Tempo is loaded but ignored.** `tempo_bpm` is parsed from the CSV but not included in scoring. A user who wants fast (150+ BPM) songs gets no credit for that preference.
+
+---
+
+## 6. Evaluation Process
+
+Four user profiles were tested:
+
+| Profile | Top Result | Score |
+|---|---|---|
+| High-Energy Pop Fan | Levitating - Dua Lipa | 5.975 |
+| Chill Lofi Listener | Weightless - Marconi Union | 5.795 |
+| Deep Intense Rock | Smells Like Teen Spirit - Nirvana | 5.870 |
+| Sad Hype (Conflicted) | SAD! - XXXTENTACION | 4.935 |
+
+**Weight-shift experiment**: Doubling the energy weight to 3.0 and halving the genre weight to 1.0 caused "good 4 u" (high energy, angry mood) to overtake purely genre-matched songs for the Rock profile. The rankings shifted but still felt reasonable — mood-matching rock songs stayed near the top. This suggests the current genre weight is defensible but slightly conservative.
+
+**Surprise finding**: The Chill Lofi Listener's #2 recommendation was Stay With Me by Sam Smith (score 2.455) — a slow, fairly acoustic pop ballad. It landed there not because it is "lofi" but because its low energy and moderate acousticness happened to match numerically. A human listener would not consider this a lofi recommendation at all.
+
+---
+
+## 7. Intended Use and Non-Intended Use
+
+**Intended use:**
+- Educational demonstration of how content-based filtering works
+- Classroom projects exploring weighted scoring and ranking algorithms
+- Prototyping a recommendation concept before adding real data
+
+**Not intended for:**
+- Production use as an actual music recommender
+- Any context where users expect culturally diverse or genre-broad recommendations
+- Deployment without significantly expanding the catalog (minimum ~500 songs with balanced genre representation)
+
+---
+
+## 8. Ideas for Improvement
+
+1. **Normalize genre weight by catalog frequency** — if pop represents 40% of the catalog, reduce its match bonus proportionally so rare genres remain competitive.
+2. **Add tempo_bpm as a scoring dimension** — it is already parsed; a proximity score similar to energy would make the system more sensitive to pace preferences.
+3. **Expand the catalog to 200+ songs with balanced genre coverage** — the single biggest improvement. The current system cannot serve niche tastes because there is nothing to recommend.
+
+---
+
+## 9. Personal Reflection
+
+**Biggest learning moment:** I expected the scoring algorithm to feel complex, but once you reduce it to "add up weighted differences," it becomes very simple math. The hard part is not the formula — it is deciding what the weights *mean* and whether they reflect how humans actually experience music.
+
+**How AI tools helped:** Claude Code designed the CSV schema, drafted the scoring function, and identified the genre-dominance bias before I ran a single profile. Where I needed to double-check was the output interpretation — the tool could calculate scores correctly but could not tell me whether "Stay With Me" actually sounds like a lofi recommendation. That judgment required a human ear.
+
+**What surprised me about simple algorithms:** Even this five-rule weighted scorer "feels" like a recommender. When the High-Energy Pop Fan gets Levitating at #1, it intuitively makes sense. The algorithm is so transparent you can trace every point, yet the result still seems meaningful. That gap between "dumb math" and "feels smart" is exactly what makes recommendation systems interesting — and exactly why their biases are so easy to hide.
+
+**What I would try next:** Implementing a tiny collaborative filtering layer by letting two profiles share ratings on a few songs, then using overlap to suggest songs one profile liked that the other hasn't seen. Even with 20 songs and 4 profiles, you could test whether collaborative signals break the genre filter bubble.
